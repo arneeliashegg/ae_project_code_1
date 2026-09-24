@@ -1,0 +1,27 @@
+Task 1.1 (1 person, easy), Richard
+Task 1.2 (multiple people, harder), espania
+Task 1.3 (1 person, easy)
+Task 1.4 (intermediate)
+Task 1.5 (intermediate)
+Task 1.6 (should be chill)
+Task 1.7 (interesting)
+----
+
+Practical Prep
+
+During experiment, measure Air Temperature (K) with thermometer. Obtain Barometric Pressure (Pa) from the KNMI website for Rotterdam the Hague airport.
+
+Connect aerofoil pressure holes to manometer.
+
+Connect tappings 1,3,5,7,9, 11 (lower surface) to the FIRST set of manometer tubes.
+Tappings 2,4,6,8,10,12 (upper surface) connect to the NEXT set of tubes.
+The 13th tube is left OPEN so all pressures are with respect to atmospheric pressure.
+
+The 14th (and last) tube is used to measure the pressure in the airbox, and at the inlet. So it needs to be swapped.
+
+Per AoA do the following:
+- Measure ambient pressure and air temperature
+- Connect the 14th manometer opening to the airbox and measure the pressure p_t
+- Connect the 14th manometer opening to the static pressure tapping in the inlet and measure this pressure, p_inf
+- Measure all pressures from the aerofoil tappings.
+
