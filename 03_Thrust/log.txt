@@ -1,0 +1,9 @@
+Journal
+
+- Started reading about Momentum Theory
+- Started reading about Blade Element Theory
+
+Blade Element Theory
+- We started by calculating the angular velocity and tip speed per blade section.
+- With that we calculated Flight Path Angle, AoA, with the given Beta per section
+- We need to discuss/decide on what to do with the AoA that falls outside the ranges. Omitting induced Vi

@@ -3,19 +3,19 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def load_cl_table(csv_path="cl_vs_aoa_pitch.csv"):
-    """Read the Cl table. Returns (pitches, aoas, cl_grid) with
+def load_cd_table(csv_path="cd_vs_aoa.csv"):
+    """Read the Cd table. Returns (pitches, aoas, cl_grid) with
     cl_grid[i, j] = Cl at pitches[i] and aoas[j], both sorted ascending."""
     df = pd.read_csv(csv_path).sort_values("pitch_deg")
-    cl_cols = [c for c in df.columns if c.startswith("Cl_aoa_")]
-    aoas = np.array([float(c.replace("Cl_aoa_", "")) for c in cl_cols])
+    cd_cols = [c for c in df.columns if c.startswith("Cd_aoa_")]
+    aoas = np.array([float(c.replace("Cd_aoa_", "")) for c in cd_cols])
     order = np.argsort(aoas)
     return (df["pitch_deg"].to_numpy(),
             aoas[order],
-            df[cl_cols].to_numpy()[:, order])
+            df[cd_cols].to_numpy()[:, order])
 
 
-PITCHES, AOAS, CL_GRID = load_cl_table()
+PITCHES, AOAS, CD_GRID = load_cd_table()
 
 
 def _interp_1d(x, xp, fp, extrapolate):
@@ -30,7 +30,7 @@ def _interp_1d(x, xp, fp, extrapolate):
     return y
 
 
-def cl_from_aoa(aoa_deg, pitch_deg, extrapolate=False):
+def cd_from_aoa(aoa_deg, pitch_deg, extrapolate=False):
     """Cl for a given angle of attack [deg] at a blade section with the given pitch [deg].
 
     Linear interpolation in AoA, then in pitch (bilinear). Works on scalars,
@@ -45,25 +45,26 @@ def cl_from_aoa(aoa_deg, pitch_deg, extrapolate=False):
     aoa, pitch = np.broadcast_arrays(aoa, pitch)
 
     # Step 1: Cl at the requested AoA for every tabulated pitch -> shape (n_pitch, n_points)
-    cl_at_aoa = np.array([_interp_1d(aoa, AOAS, row, extrapolate) for row in CL_GRID])
+    cd_at_aoa = np.array([_interp_1d(aoa, AOAS, row, extrapolate) for row in CD_GRID])
 
     # Step 2: interpolate across pitch for each point
     out = np.empty(aoa.shape)
     for k in range(aoa.size):
-        out.flat[k] = _interp_1d(pitch.flat[k], PITCHES, cl_at_aoa[:, k], extrapolate=False)
+        out.flat[k] = _interp_1d(pitch.flat[k], PITCHES, cd_at_aoa[:, k], extrapolate=False)
 
     if isinstance(aoa_deg, pd.Series):
         return pd.Series(out, index=aoa_deg.index)
     return out.item() if out.size == 1 else out
 
 
-def plot_cl_vs_pitch(save_path="cl_vs_pitch.png"):
+def plot_cd_vs_pitch(save_path="cd_vs_pitch.png"):
     fig, ax = plt.subplots(figsize=(9, 6))
     for j, a in enumerate(AOAS):
-        ax.plot(PITCHES, CL_GRID[:, j], marker="o", label=f"AoA = {a}°")
-    ax.set_xlabel("Pitch angle [deg]")
-    ax.set_ylabel(r"$C_l$ [-]")
-    ax.set_title(r"$C_l$ vs pitch angle for each angle of attack")
+        ax.plot(PITCHES, CD_GRID[:, j], marker="o", label=f"AoA = {a}°")
+    ax.invert_xaxis()
+    ax.set_xlabel(r"$\beta$ [$^\circ$]")
+    ax.set_ylabel(r"$C_d$ [-]")
+    ax.set_title(r"$C_d$ vs $\beta$ for each $\alpha$")
     ax.grid(True, alpha=0.3)
     ax.legend(title="Angle of attack")
     fig.tight_layout()
@@ -72,8 +73,8 @@ def plot_cl_vs_pitch(save_path="cl_vs_pitch.png"):
 
 
 if __name__ == "__main__":
-    print(cl_from_aoa(0.4, 38.51))          # exact table value -> 0.538974
-    print(cl_from_aoa(-2.0, 38.51))         # between -2.8 and -1.2
-    print(cl_from_aoa(5.0, 20.10))          # out of range -> nan
-    print(cl_from_aoa(5.0, 20.10, extrapolate=False))
-    plot_cl_vs_pitch()
+    print(cd_from_aoa(0.4, 38.51))          # exact table value -> 0.538974
+    print(cd_from_aoa(-2.0, 38.51))         # between -2.8 and -1.2
+    print(cd_from_aoa(5.0, 20.10))          # out of range -> nan
+    print(cd_from_aoa(5.0, 20.10, extrapolate=False))
+    plot_cd_vs_pitch()
